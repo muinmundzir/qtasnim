@@ -1,8 +1,10 @@
+import { Transaction } from 'src/transactions/entities/transaction.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -20,6 +22,9 @@ export class Item {
 
   @Column({ enum: ['Konsumsi', 'Pembersih'] })
   type: string;
+
+  @OneToMany(() => Transaction, (transaction) => transaction.item)
+  transaction: Transaction[];
 
   @DeleteDateColumn({
     name: 'deleted_at',
