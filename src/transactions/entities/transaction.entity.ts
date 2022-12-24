@@ -22,6 +22,9 @@ export class Transaction {
   @Column()
   amount: number;
 
+  @Column({ name: 'transaction_date' })
+  transactionDate: Date;
+
   @DeleteDateColumn({
     name: 'deleted_at',
     select: false,
