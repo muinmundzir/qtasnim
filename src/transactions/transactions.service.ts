@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Transaction } from './entities/transaction.entity';
@@ -46,5 +46,28 @@ export class TransactionsService {
     const transaction = await this.findOne(id);
 
     return this.transactionRepository.remove(transaction);
+  }
+
+  async findBetweenDate(startDate, endDate) {
+    const transactions = await this.transactionRepository.find({
+      where: {
+        transactionDate: Between(startDate, endDate),
+      },
+      relations: ['item'],
+    });
+
+    return transactions;
+  }
+
+  async findByName(itemName: string) {
+    const transactions = await this.transactionRepository
+      .createQueryBuilder('transactions')
+      .leftJoinAndSelect('transactions.item', 'item')
+      .where('item.name ilike :itemName', { itemName: `%${itemName}%` })
+      .getMany();
+
+    console.log(itemName, 'itemName');
+    console.log(transactions, 'transactions');
+    return transactions;
   }
 }
