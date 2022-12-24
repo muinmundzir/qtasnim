@@ -35,6 +35,12 @@ https://drive.google.com/file/d/1uQ77Sc3ja8kB7CGTNjL5amiyProK_jX4/view?usp=shari
 $ npm install
 ```
 
+## Run migration
+
+```bash
+$ npm run migration:run
+```
+
 ## Running the app
 
 ```bash
