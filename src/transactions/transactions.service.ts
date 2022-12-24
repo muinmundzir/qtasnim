@@ -19,18 +19,32 @@ export class TransactionsService {
   }
 
   findAll() {
-    return `This action returns all transactions`;
+    return this.transactionRepository.find({
+      relations: ['item'],
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+    return this.transactionRepository.find({
+      relations: ['item'],
+      where: {
+        id,
+      },
+    });
   }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
+  async update(id: number, updateTransactionDto: UpdateTransactionDto) {
+    const transaction = await this.findOne(id);
+
+    return this.transactionRepository.save({
+      ...transaction,
+      ...updateTransactionDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
+  async remove(id: number) {
+    const transaction = await this.findOne(id);
+
+    return this.transactionRepository.remove(transaction);
   }
 }
