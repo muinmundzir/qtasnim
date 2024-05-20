@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { Item } from './entities/item.entity';
@@ -21,7 +22,23 @@ export class ItemsService {
   }
 
   findOne(id: number) {
-    return this.itemRepository.findOneBy({ id });
+    try {
+      const item = this.itemRepository.findOneBy({ id });
+
+      if (!item) throw new NotFoundException('Item not found.');
+
+      return item;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateStockAmount(item: Item, amount: number) {
+    const result = await this.findOne(item.id);
+
+    result.stock -= amount;
+
+    this.itemRepository.save(result);
   }
 
   async update(id: number, updateItemDto: UpdateItemDto) {
