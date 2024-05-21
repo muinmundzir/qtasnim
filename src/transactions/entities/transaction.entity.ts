@@ -15,9 +15,12 @@ export class Transaction {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Item, (item) => item.transaction)
+  @ManyToOne(() => Item, (item) => item.transaction, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'item' })
   item: Item;
+
+  @Column({ name: 'stock_history' })
+  stockHistory: number;
 
   @Column()
   amount: number;

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, ILike, Repository } from 'typeorm';
 
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -17,8 +17,16 @@ export class TransactionsService {
 
   async create(createTransactionDto: CreateTransactionDto) {
     try {
-      const newTransaction =
-        this.transactionRepository.create(createTransactionDto);
+      const item = await this.itemsService.findOne(
+        createTransactionDto.item.id,
+      );
+      if (item.stock < 1)
+        throw new ForbiddenException('Item stock is not sufficient.');
+
+      const newTransaction = this.transactionRepository.create({
+        ...createTransactionDto,
+        stockHistory: item.stock,
+      });
 
       await this.itemsService.updateStockAmount(
         createTransactionDto.item,
@@ -31,10 +39,12 @@ export class TransactionsService {
     }
   }
 
-  findAll() {
-    return this.transactionRepository.find({
+  async findAll() {
+    const results = await this.transactionRepository.find({
       relations: ['item'],
     });
+
+    return results;
   }
 
   findOne(id: number) {
@@ -61,7 +71,21 @@ export class TransactionsService {
     return this.transactionRepository.remove(transaction);
   }
 
-  async findBetweenDate(startDate, endDate) {
+  async findByFilters(startDate: Date, endDate: Date, itemName: string) {
+    const transactions = await this.transactionRepository.find({
+      where: {
+        transactionDate: Between(startDate, endDate),
+        item: {
+          name: ILike(`%${itemName}%`),
+        },
+      },
+      relations: ['item'],
+    });
+
+    return transactions;
+  }
+
+  async findBetweenDate(startDate: Date, endDate: Date) {
     const transactions = await this.transactionRepository.find({
       where: {
         transactionDate: Between(startDate, endDate),
@@ -79,8 +103,6 @@ export class TransactionsService {
       .where('item.name ilike :itemName', { itemName: `%${itemName}%` })
       .getMany();
 
-    console.log(itemName, 'itemName');
-    console.log(transactions, 'transactions');
     return transactions;
   }
 }
