@@ -48,7 +48,7 @@ export class TransactionsService {
   }
 
   findOne(id: number) {
-    return this.transactionRepository.find({
+    return this.transactionRepository.findOne({
       relations: ['item'],
       where: {
         id,
