@@ -75,29 +75,6 @@ export class TransactionsController {
     return this.transactionsService.findOne(+id);
   }
 
-  @Get('filterDate')
-  async findBetween(@Query('startDate') startDate: string) {
-    return startDate;
-    // const transactionsData = await this.transactionsService.findBetweenDate(
-    //   query,
-    // );
-
-    // const transactions: TransactionInterface[] = transactionsData.map(
-    //   (transactionData) => {
-    //     return {
-    //       id: transactionData.id,
-    //       itemName: transactionData.item.name,
-    //       stock: transactionData.item.stock,
-    //       soldAmount: transactionData.amount,
-    //       transactionDate: transactionData.transactionDate,
-    //       itemType: transactionData.item.type,
-    //     };
-    //   },
-    // );
-    //
-    // return transactions;
-  }
-
   @Patch(':id')
   update(
     @Param('id') id: string,
