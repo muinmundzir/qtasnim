@@ -35,22 +35,34 @@ export class TransactionsController {
     @Query('startDate') startDate: Date,
     @Query('endDate') endDate: Date,
     @Query('itemName') itemName: string,
+    @Query('sortBy') sortBy: string,
+    @Query('order') order: string,
   ) {
-    let query = await this.transactionsService.findAll();
+    let query = await this.transactionsService.findAll(sortBy, order);
+
     if (startDate && endDate) {
       query = await this.transactionsService.findBetweenDate(
         startDate,
         endDate,
+        sortBy,
+        order,
       );
     }
 
-    if (itemName) query = await this.transactionsService.findByName(itemName);
+    if (itemName)
+      query = await this.transactionsService.findByName(
+        itemName,
+        sortBy,
+        order,
+      );
 
     if (startDate && endDate && itemName)
       query = await this.transactionsService.findByFilters(
         startDate,
         endDate,
         itemName,
+        sortBy,
+        order,
       );
 
     const transactionsData = query;

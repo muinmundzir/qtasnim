@@ -39,12 +39,26 @@ export class TransactionsService {
     }
   }
 
-  async findAll() {
-    const results = await this.transactionRepository.find({
+  async findAll(sortBy?: string, order?: string) {
+    const findOptions: any = {
       relations: ['item'],
-    });
+    };
 
-    return results;
+    if (sortBy && order) {
+      if (sortBy !== 'name') {
+        findOptions.order = {
+          [sortBy]: order,
+        };
+      } else {
+        findOptions.order = {
+          item: {
+            [sortBy]: order,
+          },
+        };
+      }
+    }
+
+    return await this.transactionRepository.find(findOptions);
   }
 
   findOne(id: number) {
@@ -71,8 +85,14 @@ export class TransactionsService {
     return this.transactionRepository.remove(transaction);
   }
 
-  async findByFilters(startDate: Date, endDate: Date, itemName: string) {
-    const transactions = await this.transactionRepository.find({
+  async findByFilters(
+    startDate: Date,
+    endDate: Date,
+    itemName: string,
+    sortBy?: string,
+    order?: string,
+  ) {
+    const findOptions: any = {
       where: {
         transactionDate: Between(startDate, endDate),
         item: {
@@ -80,29 +100,79 @@ export class TransactionsService {
         },
       },
       relations: ['item'],
-    });
+    };
 
-    return transactions;
+    if (sortBy && order) {
+      if (sortBy !== 'name') {
+        findOptions.order = {
+          [sortBy]: order,
+        };
+      } else {
+        findOptions.order = {
+          item: {
+            [sortBy]: order,
+          },
+        };
+      }
+    }
+
+    return await this.transactionRepository.find(findOptions);
   }
 
-  async findBetweenDate(startDate: Date, endDate: Date) {
-    const transactions = await this.transactionRepository.find({
+  async findBetweenDate(
+    startDate: Date,
+    endDate: Date,
+    sortBy?: string,
+    order?: string,
+  ) {
+    const findOptions: any = {
       where: {
         transactionDate: Between(startDate, endDate),
       },
       relations: ['item'],
-    });
+    };
 
-    return transactions;
+    if (sortBy && order) {
+      if (sortBy !== 'name') {
+        findOptions.order = {
+          [sortBy]: order,
+        };
+      } else {
+        findOptions.order = {
+          item: {
+            [sortBy]: order,
+          },
+        };
+      }
+    }
+
+    return await this.transactionRepository.find(findOptions);
   }
 
-  async findByName(itemName: string) {
-    const transactions = await this.transactionRepository
-      .createQueryBuilder('transactions')
-      .leftJoinAndSelect('transactions.item', 'item')
-      .where('item.name ilike :itemName', { itemName: `%${itemName}%` })
-      .getMany();
+  async findByName(itemName: string, sortBy?: string, order?: string) {
+    const findOptions: any = {
+      where: {
+        item: {
+          name: ILike(`%${itemName}%`),
+        },
+      },
+      relations: ['item'],
+    };
 
-    return transactions;
+    if (sortBy && order) {
+      if (sortBy !== 'name') {
+        findOptions.order = {
+          [sortBy]: order,
+        };
+      } else {
+        findOptions.order = {
+          item: {
+            [sortBy]: order,
+          },
+        };
+      }
+    }
+
+    return await this.transactionRepository.find(findOptions);
   }
 }
