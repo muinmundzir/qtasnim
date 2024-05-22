@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, ILike, Repository } from 'typeorm';
+import {
+  Between,
+  FindOperatorType,
+  FindOptions,
+  ILike,
+  Repository,
+} from 'typeorm';
 
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
@@ -17,8 +23,16 @@ export class ItemsService {
     return this.itemRepository.save(newItem);
   }
 
-  findAll() {
-    return this.itemRepository.find();
+  async findAll(sortBy?: string, order?: string) {
+    const findOptions: any = {};
+
+    if (sortBy && order) {
+      findOptions.order = {
+        [sortBy]: order,
+      };
+    }
+
+    return await this.itemRepository.find(findOptions);
   }
 
   findOne(id: number) {
@@ -33,35 +47,63 @@ export class ItemsService {
     }
   }
 
-  async findByFilters(startDate: Date, endDate: Date, itemName: string) {
-    const item = await this.itemRepository.find({
+  async findByFilters(
+    startDate: Date,
+    endDate: Date,
+    itemName: string,
+    sortBy?: string,
+    order?: string,
+  ) {
+    const findOptions: any = {
       where: {
         createdAt: Between(startDate, endDate),
         name: ILike(`%${itemName}%`),
       },
-    });
+    };
+    if (sortBy && order) {
+      findOptions.order = {
+        [sortBy]: order,
+      };
+    }
 
-    return item;
+    return await this.itemRepository.find(findOptions);
   }
 
-  async findBetweenDate(startDate: Date, endDate: Date) {
-    const items = await this.itemRepository.find({
+  async findBetweenDate(
+    startDate: Date,
+    endDate: Date,
+    sortBy?: string,
+    order?: string,
+  ) {
+    const findOptions: any = {
       where: {
         createdAt: Between(startDate, endDate),
       },
-    });
+    };
 
-    return items;
+    if (sortBy && order) {
+      findOptions.order = {
+        [sortBy]: order,
+      };
+    }
+
+    return await this.itemRepository.find(findOptions);
   }
 
-  async findByName(itemName: string) {
-    const item = await this.itemRepository.find({
+  async findByName(itemName: string, sortBy?: string, order?: string) {
+    const findOptions: any = {
       where: {
         name: ILike(`%${itemName}%`),
       },
-    });
+    };
 
-    return item;
+    if (sortBy && order) {
+      findOptions.order = {
+        [sortBy]: order,
+      };
+    }
+
+    return await this.itemRepository.find(findOptions);
   }
 
   async updateStockAmount(item: Item, amount: number) {

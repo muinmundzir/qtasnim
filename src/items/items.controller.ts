@@ -26,20 +26,30 @@ export class ItemsController {
     @Query('startDate') startDate: Date,
     @Query('endDate') endDate: Date,
     @Query('itemName') itemName: string,
+    @Query('sortBy') sortBy: string,
+    @Query('order') order: string,
   ) {
-    let query = await this.itemsService.findAll();
+    let query = await this.itemsService.findAll(sortBy, order);
 
     if (startDate && endDate) {
-      query = await this.itemsService.findBetweenDate(startDate, endDate);
+      query = await this.itemsService.findBetweenDate(
+        startDate,
+        endDate,
+        sortBy,
+        order,
+      );
     }
 
-    if (itemName) query = await this.itemsService.findByName(itemName);
+    if (itemName)
+      query = await this.itemsService.findByName(itemName, sortBy, order);
 
     if (startDate && endDate && itemName)
       query = await this.itemsService.findByFilters(
         startDate,
         endDate,
         itemName,
+        sortBy,
+        order,
       );
 
     return query;
