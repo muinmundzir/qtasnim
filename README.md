@@ -23,7 +23,7 @@
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## API Documentation
-https://drive.google.com/file/d/1uQ77Sc3ja8kB7CGTNjL5amiyProK_jX4/view?usp=sharing | Insomnia Format
+[https://drive.google.com/file/d/1uQ77Sc3ja8kB7CGTNjL5amiyProK_jX4/view?usp=sharing](https://drive.google.com/file/d/19piQHWbZv6MXksRR8pWsHhuIl88ZdV18/view?usp=sharing) | Postman Collection
 
 ## Description
 
