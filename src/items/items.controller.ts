@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -21,8 +22,27 @@ export class ItemsController {
   }
 
   @Get()
-  findAll() {
-    return this.itemsService.findAll();
+  async findAll(
+    @Query('startDate') startDate: Date,
+    @Query('endDate') endDate: Date,
+    @Query('itemName') itemName: string,
+  ) {
+    let query = await this.itemsService.findAll();
+
+    if (startDate && endDate) {
+      query = await this.itemsService.findBetweenDate(startDate, endDate);
+    }
+
+    if (itemName) query = await this.itemsService.findByName(itemName);
+
+    if (startDate && endDate && itemName)
+      query = await this.itemsService.findByFilters(
+        startDate,
+        endDate,
+        itemName,
+      );
+
+    return query;
   }
 
   @Get(':id')

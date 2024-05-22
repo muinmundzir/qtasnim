@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, ILike, Repository } from 'typeorm';
 
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
@@ -31,6 +31,37 @@ export class ItemsService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async findByFilters(startDate: Date, endDate: Date, itemName: string) {
+    const item = await this.itemRepository.find({
+      where: {
+        createdAt: Between(startDate, endDate),
+        name: ILike(`%${itemName}%`),
+      },
+    });
+
+    return item;
+  }
+
+  async findBetweenDate(startDate: Date, endDate: Date) {
+    const items = await this.itemRepository.find({
+      where: {
+        createdAt: Between(startDate, endDate),
+      },
+    });
+
+    return items;
+  }
+
+  async findByName(itemName: string) {
+    const item = await this.itemRepository.find({
+      where: {
+        name: ILike(`%${itemName}%`),
+      },
+    });
+
+    return item;
   }
 
   async updateStockAmount(item: Item, amount: number) {
