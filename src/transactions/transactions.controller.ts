@@ -82,6 +82,14 @@ export class TransactionsController {
     return transactions;
   }
 
+  @Get('/reports')
+  async getReports(
+    @Query('startDate') startDate: Date,
+    @Query('endDate') endDate: Date,
+  ) {
+    return this.transactionsService.getReports(startDate, endDate);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.transactionsService.findOne(+id);

@@ -45,7 +45,7 @@ export class TransactionsService {
     };
 
     if (sortBy && order) {
-      if (sortBy !== 'name') {
+      if (sortBy !== 'name' && sortBy !== 'type') {
         findOptions.order = {
           [sortBy]: order,
         };
@@ -103,7 +103,7 @@ export class TransactionsService {
     };
 
     if (sortBy && order) {
-      if (sortBy !== 'name') {
+      if (sortBy !== 'name' && sortBy !== 'type') {
         findOptions.order = {
           [sortBy]: order,
         };
@@ -133,7 +133,7 @@ export class TransactionsService {
     };
 
     if (sortBy && order) {
-      if (sortBy !== 'name') {
+      if (sortBy !== 'name' && sortBy !== 'type') {
         findOptions.order = {
           [sortBy]: order,
         };
@@ -160,7 +160,7 @@ export class TransactionsService {
     };
 
     if (sortBy && order) {
-      if (sortBy !== 'name') {
+      if (sortBy !== 'name' && sortBy !== 'type') {
         findOptions.order = {
           [sortBy]: order,
         };
@@ -174,5 +174,73 @@ export class TransactionsService {
     }
 
     return await this.transactionRepository.find(findOptions);
+  }
+
+  async getReports(startDate?: Date, endDate?: Date) {
+    const baseQuery = this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.item', 'item');
+
+    if (startDate && endDate) {
+      baseQuery.where(
+        'transaction.transactionDate BETWEEN :startDate AND :endDate',
+        { startDate, endDate },
+      );
+    }
+
+    const mostTransactionsQuery = baseQuery
+      .clone()
+      .select([
+        'DISTINCT ON (item.type) item.type AS itemType',
+        'MAX(transaction.amount) AS maxAmount',
+      ])
+      .groupBy('item.type')
+      .orderBy('item.type');
+
+    const mostTransactions = await mostTransactionsQuery.getRawMany();
+
+    const mostTransactionsWithDetails = await Promise.all(
+      mostTransactions.map(async (row) => {
+        return await this.transactionRepository.findOne({
+          where: {
+            amount: row.maxamount,
+            item: {
+              type: row.itemtype,
+            },
+          },
+          relations: ['item'],
+        });
+      }),
+    );
+
+    const leastTransactionsQuery = baseQuery
+      .clone()
+      .select([
+        'DISTINCT ON (item.type) item.type AS itemType',
+        'MIN(transaction.amount) AS minAmount',
+      ])
+      .groupBy('item.type')
+      .orderBy('item.type');
+
+    const leastTransactions = await leastTransactionsQuery.getRawMany();
+
+    const leastTransactionsWithDetails = await Promise.all(
+      leastTransactions.map(async (row) => {
+        return await this.transactionRepository.findOne({
+          where: {
+            amount: row.minamount,
+            item: {
+              type: row.itemtype,
+            },
+          },
+          relations: ['item'],
+        });
+      }),
+    );
+
+    return {
+      mostTransactions: mostTransactionsWithDetails,
+      leastTransactions: leastTransactionsWithDetails,
+    };
   }
 }
